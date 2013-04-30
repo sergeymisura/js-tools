@@ -2,7 +2,6 @@
 var app = {};
 
 (function($) {
-	
 
 	var _controllers = {};
 	var _services = {};
