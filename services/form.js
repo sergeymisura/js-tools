@@ -50,13 +50,17 @@
 			var $parent = $source.parents('.control-group, .validation-group');
 
 			if ($source.is(':visible') && !$source.prop('disabled')) {
-				var type = $source.data('required');
+				var required = $source.data('required').split('|');
+				var type = required[0];
+				var options = required.slice(1);
 				var rule = _validationFunctions[type];
 	
 				if (rule) {
-					if (!rule.test($source)) {
-						_displayError($source, message, rule.message);
-						return false;
+					if (options.indexOf('empty') == -1 || $source.val() != '') {
+						if (!rule.test($source)) {
+							_displayError($source, message, rule.message);
+							return false;
+						}
 					}
 				}
 			}
