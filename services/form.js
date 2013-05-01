@@ -36,6 +36,16 @@
 			return true;
 		};
 
+		var _displayError = function($source, showMessage, messageText) {
+			var $parent = $source.parents('.control-group, .validation-group');
+			$source.addClass('invalid');
+			if (showMessage) {
+				$parent.find('.errors').html('').append(
+					$('<label/>').html(messageText).addClass('label').addClass('label-important')
+				).show();
+			}
+		};
+
 		var _validate = function($source, message) {
 			var $parent = $source.parents('.control-group, .validation-group');
 
@@ -45,12 +55,7 @@
 	
 				if (rule) {
 					if (!rule.test($source)) {
-						$source.addClass('invalid');
-						if (message) {
-							$parent.find('.errors').html('').append(
-								$('<label/>').html(rule.message).addClass('label').addClass('label-important')
-							);
-						}
+						_displayError($source, message, rule.message);
 						return false;
 					}
 				}
@@ -91,6 +96,10 @@
 						result = _validate($(element), true) && result;
 					});
 					return result;
+				},
+				
+				displayError: function($source, messageText) {
+					_displayError($source, true, messageText);
 				},
 	
 				collect: function() {
