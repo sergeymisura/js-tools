@@ -1,7 +1,7 @@
 (function() {
 	app.service('rendering', function($element) {
 		var _renderOne = function(template, data, filters) {
-			var $new = template.template.tmpl($.extend(data, filters)).addClass('rendered');
+			var $new = template.template.tmpl($.extend(filters, data)).addClass('rendered');
 			$new.data('data', data);
 			$new.data('template', template);
 			$new.data('filters', filters);
