@@ -6,14 +6,14 @@
 			$new.data('template', template);
 			$new.data('filters', filters);
 			$new.find('a[href="#"]').attr('href', 'javascript:void(0);');
-			app.bindControllers($new);
-			app.bindTemplates($new, $element);
+			$new.removeAttr('data-template');
 			return $new;
 		};
 
 		var rendering = function(name, data, filters) {
 			return rendering.render(name, data,filters);
 		};
+
 		$.extend(rendering, {
 			render: function(name, data, filters) {
 				filters = filters || {};
@@ -29,7 +29,7 @@
 					else {
 						$placeholder.append(_renderOne(template, data, filters));
 					}
-					return $placeholder.children();
+					return app.compile($placeholder.children());
 				}
 			},
 
@@ -42,7 +42,7 @@
 				var filters = $part.data('filters');
 				var $new = _renderOne(template, data, filters);
 				$part.replaceWith($new);
-				return $new;
+				return app.compile($new);
 			},
 
 			container: function($el) {

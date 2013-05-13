@@ -5,18 +5,22 @@ var app = {};
 
 	var _controllers = {};
 	var _services = {};
-
-	var _servicesFactory = function($element) {
-		var services = {};
-		$.each(_services, function(name, factory) {
-			services[name] = factory($element, services);
-		});
-		return services;
-	};
+	var _transformations = [];
 
 	$.extend(app, {
 		controller: function(name, controller) {
 			_controllers[name] = controller;
+		},
+
+		service: function(name, service) {
+			_services[name] = service;
+		},
+
+		transformation: function(selector, fn) {
+			_transformations.push({
+				selector: selector, 
+				fn: fn
+			});
 		},
 
 		get: function(selector) {
@@ -27,45 +31,44 @@ var app = {};
 			return null;
 		},
 
-		service: function(name, service) {
-			_services[name] = service;
-		},
-
-		bindControllers: function($scope) {
-			$scope.find("[data-controller]").each(function(idx, element) {
-				var $element = $(element);
-				var controller = (_controllers[$element.attr('data-controller')] || $.noop);
-
-				element.templates = {};
-
-				app.bindTemplates($element, $element);
-
-				element.controller = controller($element, _servicesFactory($element));
-				if (typeof element.controller.init !== 'undefined') {
-					element.controller.init();
-				}
-			});
-		},
-
-		bindTemplates: function($scope, $controllerElement) {
+		compile: function($element) {
 			if (typeof $controllerElement == 'undefined') {
-				$controllerElement = $scope.attr('data-controller') ? $scope : $scope.parents('data-controller');
+				$controllerElement = $element.attr('data-controller') ? $element : $element.parents('data-controller');
 			}
-			$scope.find("[data-template]").each(function(idx, template) {
-				var $placeholder = $("<div />").addClass($(template).attr('data-template') + '-placeholder'); 
-				$(template).replaceWith($placeholder)
-				$controllerElement.get(0).templates[$(template).attr('data-template')] = { 
-					template: $("<div />").append($(template)),
-					placeholder: $placeholder
-				}
+			var $result = $element;
+			$.each(_transformations, function(idx, transform) {
+				($element.is(transform.selector) ? $element.find(transform.selector).andSelf() : $element.find(transform.selector)).each(function(idx, el) {
+					var $result = transform.fn($(el));
+					if ($result !== null) {
+						$(el).replaceWith($result);
+					}
+				});
 			});
+			return $result;
 		}
 	});
 
 	$(document).ready(function() {
-		$("[data-toggle='tooltip']").tooltip();
 
-		app.bindControllers($('body'));
-		$('a[href="#"]').attr('href', 'javascript:void(0);');
+		// Should be the last transformation in the chain
+		app.transformation("[data-controller]", function($element) {
+			var controller = (_controllers[$element.attr('data-controller')] || $.noop);
+			var element = $element.get(0);
+
+			var services = {};
+
+			$.each(_services, function(name, factory) {
+				services[name] = factory($element, services);
+			});
+
+			element.controller = controller($element, services);
+			if (typeof element.controller.init !== 'undefined') {
+				element.controller.init();
+			}
+		});
+
+		app.compile($('body'));
+
 	});
+
 })(jQuery);
