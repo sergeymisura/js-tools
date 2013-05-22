@@ -1,7 +1,22 @@
 (function() {
+	var _defaultFilters = {
+		$gravatar: function(email, size, id) {
+			size = size || 80;
+			id = id || 'monsterid';
+			return 'https://secure.gravatar.com/avatar/' + md5(email) + '?s=' + size + '&d=' + id;
+		},
+
+		$phone: function(phone) {
+			if (phone.length != 10) {
+				return phone;
+			}
+			return '(' + phone.substring(0, 3) + ') ' + phone.substring(3, 6) + ' - ' + phone.substring(6);
+		}
+	};
+
 	app.service('rendering', function($element) {
 		var _renderOne = function(template, data, filters) {
-			var $new = template.template.tmpl($.extend(filters, data)).addClass('rendered');
+			var $new = template.template.tmpl($.extend($.extend(filters, data), _defaultFilters)).addClass('rendered');
 			$new.data('data', data);
 			$new.data('template', template);
 			$new.data('filters', filters);
