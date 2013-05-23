@@ -7,7 +7,7 @@
 						var $this = $(this);
 						var callable = typeof method == 'string' ? $element[0].controller[method] : method;
 						var args = [$this, services.rendering.container($this).data('data'), ev];
-						if ($this.data('arg')) {
+						if (typeof $this.data('arg') != 'undefined') {
 							args.unshift($this.data('arg'));
 						}
 						return callable.apply($element[0].controller, args);
