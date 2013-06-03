@@ -71,4 +71,13 @@ var app = {};
 
 	});
 
+	$(document).on('mouseup.auto-close', function(e) {
+		$('[data-close="auto"]:visible').each(function(idx, el) {
+			var $el = $(el);
+			if ($el.has(e.target).length === 0 && !$el.is(e.target)) {
+				$el.hide();
+			}
+		});
+	});
+
 })(jQuery);
