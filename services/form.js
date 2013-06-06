@@ -54,10 +54,32 @@
 				var type = required[0];
 				var options = required.slice(1);
 				var rule = _validationFunctions[type];
+
+				var optionsObj = {};
+				options = $.each(options, function(idx, option) {
+					if (option.indexOf(':') == -1) {
+						optionsObj[option] = true;
+					}
+					else {
+						var pair = option.split(':');
+						optionsObj[pair[0]] = pair[1];
+					}
+				})
 	
 				if (rule) {
-					if (options.indexOf('empty') == -1 || $source.val() != '') {
-						if (!rule.test($source)) {
+					var val = $source.val();
+					if (typeof optionsObj['empty'] == 'undefined' || val != '') {
+						if (typeof optionsObj['min'] !== 'undefined') {
+							if (val.length < parseInt(optionsObj['min'])) {
+								return false;
+							}
+						}
+						if (typeof optionsObj['max'] !== 'undefined') {
+							if (val.length > parseInt(optionsObj['max'])) {
+								return false;
+							}
+						}
+						if (!rule.test($source, optionsObj)) {
 							_displayError($source, message, rule.message);
 							return false;
 						}
