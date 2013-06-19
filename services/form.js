@@ -41,12 +41,12 @@
 			$source.addClass('invalid');
 			if (showMessage) {
 				$parent.find('.errors').html('').append(
-					$('<label/>').html(messageText).addClass('label').addClass('label-important')
+					$('<label/>').html($source.data('error-message') || messageText).addClass('label').addClass('label-important')
 				).show();
 			}
 		};
 
-		var _validate = function($source, message) {
+		var _validate = function($source, showMessage) {
 			var $parent = $source.parents('.control-group, .validation-group');
 
 			if ($source.is(':visible') && !$source.prop('disabled')) {
@@ -65,22 +65,24 @@
 						optionsObj[pair[0]] = pair[1];
 					}
 				})
-	
+
 				if (rule) {
 					var val = $source.val();
 					if (typeof optionsObj['empty'] == 'undefined' || val != '') {
 						if (typeof optionsObj['min'] !== 'undefined') {
 							if (val.length < parseInt(optionsObj['min'])) {
+								_displayError($source, showMessage, 'This field should have at least ' + optionsObj['min'] + ' symbols.');
 								return false;
 							}
 						}
 						if (typeof optionsObj['max'] !== 'undefined') {
 							if (val.length > parseInt(optionsObj['max'])) {
+								_displayError($source, showMessage, 'This field should have maximum ' + optionsObj['max'] + ' symbols.');
 								return false;
 							}
 						}
 						if (!rule.test($source, optionsObj)) {
-							_displayError($source, message, rule.message);
+							_displayError($source, showMessage, rule.message);
 							return false;
 						}
 					}
