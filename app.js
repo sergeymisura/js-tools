@@ -39,7 +39,7 @@ var app = {};
 			$.each(_transformations, function(idx, transform) {
 				($element.is(transform.selector) ? $element.find(transform.selector).andSelf() : $element.find(transform.selector)).each(function(idx, el) {
 					var $result = transform.fn($(el));
-					if ($result !== null) {
+					if (typeof $result != 'undefined' && $result !== null) {
 						$(el).replaceWith($result);
 					}
 				});
