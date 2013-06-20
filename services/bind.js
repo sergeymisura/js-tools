@@ -2,6 +2,11 @@
 	app.service('bind', function($element, services) {
 		return function(map) {
 			$.each(map, function(selector, value) {
+				if (typeof value == 'string' || typeof value == 'function') {
+					value = {
+						click: value
+					};
+				}
 				$.each(value, function(event, method) {
 					
 					$element.on(event, selector, function(ev) {
