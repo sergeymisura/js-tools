@@ -116,7 +116,9 @@
 		});
 
 		return function(form) {
-			var $form = typeof form == "string" ? $(form) : form;
+			var $form = typeof form == "string"
+							? $(form)
+							: (form || $element);
 			return {
 				validate: function() {
 					var result = true;
@@ -130,7 +132,7 @@
 					_displayError($source, true, messageText);
 				},
 	
-				collect: function() {
+				collect: function(list) {
 					var data = {};
 					$form.find('input[type="text"], select, textarea, input[type="hidden"]').each(function(idx, el) {
 						var $el = $(el);
@@ -144,6 +146,13 @@
 							data[$el.attr('name')] = el.value;
 						}
 					});
+					if (typeof list != 'undefined') {
+						var filtered = {};
+						$.each(list, function(idx, key) {
+							filtered[key] = data[key] || '';
+						});
+						return filtered;
+					}
 					return data;
 				}
 			};
