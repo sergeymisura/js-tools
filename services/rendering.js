@@ -2,7 +2,7 @@
 	var _defaultFilters = {
 		$gravatar: function(email, size, id) {
 			size = size || 80;
-			id = id || 'monsterid';
+			id = id || 'mm';
 			return 'https://secure.gravatar.com/avatar/' + md5(email) + '?s=' + size + '&d=' + id;
 		},
 
