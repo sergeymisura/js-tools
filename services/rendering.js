@@ -2,7 +2,7 @@
 	var _defaultFilters = {
 		$gravatar: function(email, size, id) {
 			size = size || 80;
-			id = id || 'monsterid';
+			id = id || 'mm';
 			return 'https://secure.gravatar.com/avatar/' + md5(email) + '?s=' + size + '&d=' + id;
 		},
 
@@ -21,7 +21,9 @@
 			$new.data('template', template);
 			$new.data('filters', filters);
 			$new.find('a[href="#"]').attr('href', 'javascript:void(0);');
+			$new.addClass($new.attr('data-template') + '-rendered');
 			$new.removeAttr('data-template');
+			$new.removeAttr('data-template-placeholder');
 			return $new;
 		};
 
@@ -35,6 +37,10 @@
 				var template = $element[0].templates[name];
 				var $placeholder = $element.find('.' + name + '-placeholder');
 				if (template) {
+					$remove = $element.find('.' + name + '-rendered');
+					if ($placeholder.length == 0) {
+						$placeholder = $element.find('.' + name + '-rendered:first');
+					}
 					$placeholder.html("");
 					if (data.constructor === Array) {
 						$.each(data, function(idx, item) {
@@ -44,6 +50,8 @@
 					else {
 						$placeholder.append(_renderOne(template, data, filters));
 					}
+					$placeholder.replaceWith($placeholder.children());
+					$remove.remove();
 					return app.compile($placeholder.children());
 				}
 			},

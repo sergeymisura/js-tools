@@ -41,12 +41,12 @@
 			$source.addClass('invalid');
 			if (showMessage) {
 				$parent.find('.errors').html('').append(
-					$('<label/>').html(messageText).addClass('label').addClass('label-important')
+					$('<label/>').html($source.data('error-message') || messageText).addClass('label').addClass('label-important')
 				).show();
 			}
 		};
 
-		var _validate = function($source, message) {
+		var _validate = function($source, showMessage) {
 			var $parent = $source.parents('.control-group, .validation-group');
 
 			if ($source.is(':visible') && !$source.prop('disabled')) {
@@ -54,11 +54,35 @@
 				var type = required[0];
 				var options = required.slice(1);
 				var rule = _validationFunctions[type];
-	
+
+				var optionsObj = {};
+				options = $.each(options, function(idx, option) {
+					if (option.indexOf(':') == -1) {
+						optionsObj[option] = true;
+					}
+					else {
+						var pair = option.split(':');
+						optionsObj[pair[0]] = pair[1];
+					}
+				})
+
 				if (rule) {
-					if (options.indexOf('empty') == -1 || $source.val() != '') {
-						if (!rule.test($source)) {
-							_displayError($source, message, rule.message);
+					var val = $source.val();
+					if (typeof optionsObj['empty'] == 'undefined' || val != '') {
+						if (typeof optionsObj['min'] !== 'undefined') {
+							if (val.length < parseInt(optionsObj['min'])) {
+								_displayError($source, showMessage, 'This field should have at least ' + optionsObj['min'] + ' symbols.');
+								return false;
+							}
+						}
+						if (typeof optionsObj['max'] !== 'undefined') {
+							if (val.length > parseInt(optionsObj['max'])) {
+								_displayError($source, showMessage, 'This field should have maximum ' + optionsObj['max'] + ' symbols.');
+								return false;
+							}
+						}
+						if (!rule.test($source, optionsObj)) {
+							_displayError($source, showMessage, rule.message);
 							return false;
 						}
 					}
@@ -92,7 +116,9 @@
 		});
 
 		return function(form) {
-			var $form = typeof form == "string" ? $(form) : form;
+			var $form = typeof form == "string"
+							? $(form)
+							: (form || $element);
 			return {
 				validate: function() {
 					var result = true;
@@ -106,7 +132,7 @@
 					_displayError($source, true, messageText);
 				},
 	
-				collect: function() {
+				collect: function(list) {
 					var data = {};
 					$form.find('input[type="text"], select, textarea, input[type="hidden"]').each(function(idx, el) {
 						var $el = $(el);
@@ -120,6 +146,13 @@
 							data[$el.attr('name')] = el.value;
 						}
 					});
+					if (typeof list != 'undefined') {
+						var filtered = {};
+						$.each(list, function(idx, key) {
+							filtered[key] = data[key] || '';
+						});
+						return filtered;
+					}
 					return data;
 				}
 			};
