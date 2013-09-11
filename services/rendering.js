@@ -50,9 +50,10 @@
 					else {
 						$placeholder.append(_renderOne(template, data, filters));
 					}
-					$placeholder.replaceWith($placeholder.children());
+					$new = $placeholder.children();
+					$placeholder.replaceWith($new);
 					$remove.remove();
-					return app.compile($placeholder.children());
+					return app.compile($new);
 				}
 			},
 
