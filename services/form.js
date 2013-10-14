@@ -23,7 +23,7 @@
 				message: 'Please enter an integer value'
 			},
 
-			decimal:{ 
+			decimal:{
 				test: function($source) {
 					return /^[0-9]*(\.)?[0-9]+$/.test($source.val());
 				},
@@ -115,7 +115,7 @@
 			}
 		});
 
-		return function(form) {
+		var form = function(form) {
 			var $form = typeof form == "string"
 							? $(form)
 							: (form || $element);
@@ -127,14 +127,14 @@
 					});
 					return result;
 				},
-				
+
 				displayError: function($source, messageText) {
 					_displayError($source, true, messageText);
 				},
-	
+
 				collect: function(list) {
 					var data = {};
-					$form.find('input[type="text"], select, textarea, input[type="hidden"]').each(function(idx, el) {
+					$form.find('input[type="text"], input[type="password"], select, textarea, input[type="hidden"]').each(function(idx, el) {
 						var $el = $(el);
 						if ($el.is(':visible') && !$el.prop('disabled')) {
 							data[$el.attr('name')] = el.value;
@@ -156,6 +156,12 @@
 					return data;
 				}
 			};
-		}
+		};
+
+		form.addRules = function (rules) {
+			$.extend(_validationFunctions, rules);
+		};
+
+		return form;
 	});
 })(jQuery, app);

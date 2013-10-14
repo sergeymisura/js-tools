@@ -18,13 +18,13 @@ var app = {};
 
 		transformation: function(selector, fn) {
 			_transformations.push({
-				selector: selector, 
+				selector: selector,
 				fn: fn
 			});
 		},
 
-		get: function(selector) {
-			var $el = $('body').find(selector);
+		get: function(element) {
+			var $el = $(element);
 			if ($el.length) {
 				return $el.get(0).controller;
 			}
@@ -32,9 +32,6 @@ var app = {};
 		},
 
 		compile: function($element) {
-			if (typeof $controllerElement == 'undefined') {
-				$controllerElement = $element.attr('data-controller') ? $element : $element.parents('data-controller');
-			}
 			var $result = $element;
 			$.each(_transformations, function(idx, transform) {
 				($element.is(transform.selector) ? $element.find(transform.selector).andSelf() : $element.find(transform.selector)).each(function(idx, el) {
