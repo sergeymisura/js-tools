@@ -55,6 +55,9 @@
 						$placeholder.append(_renderOne(template, data, filters));
 					}
 					$new = $placeholder.children();
+					if ($new.length == 0) {
+						$new = $('<div />').addClass(name + '-placeholder');
+					}
 					$placeholder.replaceWith($new);
 					$remove.remove();
 					return app.compile($new);
