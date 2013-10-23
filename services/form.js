@@ -136,7 +136,7 @@
 					var data = {};
 					$form.find('input[type="text"], input[type="password"], select, textarea, input[type="hidden"]').each(function(idx, el) {
 						var $el = $(el);
-						if ($el.is(':visible') && !$el.prop('disabled')) {
+						if (($el.is(':visible') && !$el.prop('disabled')) || $el.attr('type') == 'hidden') {
 							data[$el.attr('name')] = el.value;
 						}
 					});
