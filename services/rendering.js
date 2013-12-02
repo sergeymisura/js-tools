@@ -11,6 +11,11 @@
 				return phone;
 			}
 			return '(' + phone.substring(0, 3) + ') ' + phone.substring(3, 6) + ' - ' + phone.substring(6);
+		},
+
+		$date: function(date) {
+			var date = new Date(date);
+			return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
 		}
 	};
 
