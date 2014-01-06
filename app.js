@@ -13,7 +13,13 @@ var app = {};
 		},
 
 		service: function(name, service) {
-			_services[name] = service;
+			if (typeof service == 'undefined') {
+				return _services[name];
+			}
+			else {
+				_services[name] = service;
+				return service;
+			}
 		},
 
 		transformation: function(selector, fn) {
