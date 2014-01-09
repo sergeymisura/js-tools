@@ -26,14 +26,14 @@
 					successCallback: function() {
 						return $.proxy(function() {
 							(this._after || $.noop).apply(null, arguments);
-							(this._success || $.noop).apply(null, arguments);
+							return (this._success || $.noop).apply(null, arguments);
 						}, this);
 					},
 
 					errorCallback: function() {
 						return $.proxy(function() {
 							(this._after || $.noop).apply(null, arguments);
-							(this._error || $.noop).apply(null, arguments);
+							return (this._error || $.noop).apply(null, arguments);
 						}, this);
 					}
 				}

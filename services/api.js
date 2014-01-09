@@ -14,12 +14,14 @@
 					data = null;
 				}
 			}
+			if (callback(xhr.status, data)) {
+				return;
+			}
 			if (_options.onError) {
 				if (_options.onError(xhr.status, data) == false) {
 					return;
 				}
 			}
-			return callback(xhr.status, data);
 		}
 	}
 
