@@ -4,7 +4,7 @@
 		var _validationFunctions = {
 			value: {
 				test: function($source) {
-					return $source.val() != '';
+					return $.trim($source.val()) != '';
 				},
 				message: 'This field cannot be empty.'
 			},
