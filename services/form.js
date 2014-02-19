@@ -37,17 +37,17 @@
 		};
 
 		var _displayError = function($source, showMessage, messageText) {
-			var $parent = $source.parents('.control-group, .validation-group');
+			var $parent = $source.parents('.control-group, .validation-group, .form-group');
 			$source.addClass('invalid');
 			if (showMessage) {
 				$parent.find('.errors').html('').append(
-					$('<label/>').html($source.data('error-message') || messageText).addClass('label').addClass('label-important')
+					$('<label/>').html($source.data('error-message') || messageText).addClass('label').addClass('label-important label-danger')
 				).show();
 			}
 		};
 
 		var _validate = function($source, showMessage) {
-			var $parent = $source.parents('.control-group, .validation-group');
+			var $parent = $source.parents('.control-group, .validation-group, .form-group');
 
 			if ($source.is(':visible') && !$source.prop('disabled')) {
 				var required = $source.data('required').split('|');
