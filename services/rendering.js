@@ -14,7 +14,15 @@
 		},
 
 		$date: function(date) {
-			var date = new Date(date);
+			if (typeof date != 'object') {
+				if (/^[0-9]{4}-[0-9][0-9]-[0-9][0-9]/.test(date)) {
+					var t = date.split(/[- :]/);
+					date = new Date(t[0], t[1]-1, t[2]);
+				}
+				else {
+					date = new Date(date);
+				}
+			}
 			return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
 		}
 	};
