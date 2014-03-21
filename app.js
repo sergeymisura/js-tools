@@ -6,6 +6,7 @@ var app = {};
 	var _controllers = {};
 	var _services = {};
 	var _transformations = [];
+	var _readyEvents = [];
 
 	$.extend(app, {
 		controller: function(name, controller) {
@@ -48,6 +49,10 @@ var app = {};
 				});
 			});
 			return $result;
+		},
+
+		ready: function(callback, context) {
+			_readyEvents.push($.proxy(callback, context));
 		}
 	});
 
@@ -71,7 +76,9 @@ var app = {};
 		});
 
 		app.compile($('body'));
-
+		$.each(_readyEvents, function(idx, callback) {
+			callback();
+		});
 	});
 
 	$(document).on('mouseup.auto-close', function(e) {
