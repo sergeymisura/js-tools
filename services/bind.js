@@ -8,7 +8,7 @@
 					};
 				}
 				$.each(value, function(event, method) {
-					
+
 					$element.on(event, selector, function(ev) {
 
 						var $this = $(this);
@@ -21,11 +21,9 @@
 							callable = method;
 						}
 
-						var args = [
-							$this,
-							services.rendering.container($this).data('data'),
-							ev
-						];
+						var args = [].slice.call(arguments);
+						args.unshift(services.rendering.container($this).data('data'));
+						args.unshift($this);
 
 						if (typeof $this.data('arg') != 'undefined') {
 							args.unshift($this.data('arg'));
