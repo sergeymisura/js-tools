@@ -52,7 +52,14 @@ var app = {};
 		},
 
 		ready: function(callback, context) {
+			this.log('app.ready() function is deprecated. Use application\'s "ready" event instead.');
 			_readyEvents.push($.proxy(callback, context));
+		},
+
+		log: function(message) {
+			if (typeof console != 'undefined' && typeof console.log != 'undefined') {
+				console.log(message);
+			}
 		}
 	});
 
@@ -79,6 +86,7 @@ var app = {};
 		$.each(_readyEvents, function(idx, callback) {
 			callback();
 		});
+		$(app).triggerHandler('ready');
 	});
 
 	$(document).on('mouseup.auto-close', function(e) {

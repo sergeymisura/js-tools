@@ -1,7 +1,21 @@
 (function() {
-	app.service('bind', function($element, services) {
-		return function(map) {
-			app.log('"bind" service is deprecated. Use "events" service instead.');
+	app.service('events', function($element, services) {
+		return function(target, map) {
+			var $target;
+			if (typeof map == 'undefined') {
+				map = target;
+				$target = $element;
+			}
+			else {
+				$target = $(target);
+				map[''] = {};
+				$.each(map, function(selector, value) {
+					if (typeof value == 'function') {
+						map[''][selector] = value;
+						delete map[selector];
+					}
+				});
+			}
 			$.each(map, function(selector, value) {
 				if (typeof value == 'string' || typeof value == 'function') {
 					value = {
@@ -10,7 +24,7 @@
 				}
 				$.each(value, function(event, method) {
 
-					$element.on(event, selector, function(ev) {
+					var handler = function(ev) {
 
 						var $this = $(this);
 						var callable;
@@ -23,15 +37,14 @@
 						}
 
 						var args = [].slice.call(arguments);
-						args.unshift(services.rendering.container($this).data('data'));
+						var $this = $(this);
 						args.unshift($this);
-
-						if (typeof $this.data('arg') != 'undefined') {
-							args.unshift($this.data('arg'));
-						}
+						ev.data = services.rendering.container($this).data('data');
 
 						return callable.apply($element[0].controller, args);
-					});
+					};
+
+					$target.on(event, selector, handler);
 				});
 			});
 		};

@@ -91,9 +91,9 @@
 			$source.removeClass('invalid');
 			$parent.find('.errors').html('');
 			return true;
-		}
+		};
 
-		services.bind({
+		services.events({
 			'input[data-required], textarea[data-required]': {
 				focus: function($source) {
 					_validate($source, false);
