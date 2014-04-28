@@ -8,4 +8,17 @@
 		$element.tooltip();
 	});
 
+	var _spinning = '<i class="icon-refresh icon-spin icon-large icon-white"></i> ';
+	app.transformation('.btn-loading', function($element) {
+		$element.button();
+		if ($element.get(0).tagName == 'INPUT')
+		{
+			$element.data('loading-text', _spinning + $element.val());
+		}
+		else
+		{
+			$element.data('loading-text', _spinning + $element.html());
+		}
+	});
+
 })(jQuery, app);

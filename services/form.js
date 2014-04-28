@@ -4,7 +4,7 @@
 		var _validationFunctions = {
 			value: {
 				test: function($source) {
-					return $source.val() != '';
+					return $.trim($source.val()) != '';
 				},
 				message: 'This field cannot be empty.'
 			},
@@ -23,7 +23,7 @@
 				message: 'Please enter an integer value'
 			},
 
-			decimal:{ 
+			decimal:{
 				test: function($source) {
 					return /^[0-9]*(\.)?[0-9]+$/.test($source.val());
 				},
@@ -37,17 +37,17 @@
 		};
 
 		var _displayError = function($source, showMessage, messageText) {
-			var $parent = $source.parents('.control-group, .validation-group');
+			var $parent = $source.parents('.control-group, .validation-group, .form-group');
 			$source.addClass('invalid');
 			if (showMessage) {
 				$parent.find('.errors').html('').append(
-					$('<label/>').html($source.data('error-message') || messageText).addClass('label').addClass('label-important')
+					$('<label/>').html($source.data('error-message') || messageText).addClass('label').addClass('label-important label-danger')
 				).show();
 			}
 		};
 
 		var _validate = function($source, showMessage) {
-			var $parent = $source.parents('.control-group, .validation-group');
+			var $parent = $source.parents('.control-group, .validation-group, .form-group');
 
 			if ($source.is(':visible') && !$source.prop('disabled')) {
 				var required = $source.data('required').split('|');
@@ -91,9 +91,9 @@
 			$source.removeClass('invalid');
 			$parent.find('.errors').html('');
 			return true;
-		}
+		};
 
-		services.bind({
+		services.events({
 			'input[data-required], textarea[data-required]': {
 				focus: function($source) {
 					_validate($source, false);
@@ -115,7 +115,7 @@
 			}
 		});
 
-		return function(form) {
+		var form = function(form) {
 			var $form = typeof form == "string"
 							? $(form)
 							: (form || $element);
@@ -127,16 +127,16 @@
 					});
 					return result;
 				},
-				
+
 				displayError: function($source, messageText) {
 					_displayError($source, true, messageText);
 				},
-	
+
 				collect: function(list) {
 					var data = {};
-					$form.find('input[type="text"], select, textarea, input[type="hidden"]').each(function(idx, el) {
+					$form.find('input[type="text"], input[type="password"], select, textarea, input[type="hidden"]').each(function(idx, el) {
 						var $el = $(el);
-						if ($el.is(':visible') && !$el.prop('disabled')) {
+						if (($el.is(':visible') && !$el.prop('disabled')) || $el.attr('type') == 'hidden') {
 							data[$el.attr('name')] = el.value;
 						}
 					});
@@ -156,6 +156,12 @@
 					return data;
 				}
 			};
-		}
+		};
+
+		form.addRules = function (rules) {
+			$.extend(_validationFunctions, rules);
+		};
+
+		return form;
 	});
 })(jQuery, app);

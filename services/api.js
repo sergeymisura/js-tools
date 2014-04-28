@@ -1,4 +1,7 @@
 (function() {
+	var _options = {
+	};
+
 	var _errorCallback = function(result) {
 		var callback = result.errorCallback();
 		return function(xhr, textStatus, errorThrown) {
@@ -11,11 +14,18 @@
 					data = null;
 				}
 			}
-			return callback(xhr.status, data);
+			if (callback(xhr.status, data)) {
+				return;
+			}
+			if (_options.onError) {
+				if (_options.onError(xhr.status, data) == false) {
+					return;
+				}
+			}
 		}
 	}
 
-	app.service('api', function($element, services) {
+	var serviceFactory = function($element, services) {
 		return {
 			get: function(uri, data) {
 				if (typeof data == 'undefined') {
@@ -58,5 +68,11 @@
 				return result;
 			}
 		};
-	});
+	};
+
+	serviceFactory.options = function(options) {
+		_options = $.extend(_options, options);
+	};
+
+	app.service('api', serviceFactory);
 })(jQuery, app);
