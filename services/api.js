@@ -31,7 +31,7 @@
 				if (typeof data == 'undefined') {
 					data = {}
 				}
-				var result = services.dereferred.create();
+				var result = services.deferred.create();
 				$.ajax(
 					app.config.baseUrl + '/api/' + uri,
 					{
@@ -47,7 +47,7 @@
 				if (typeof data == 'undefined') {
 					data = {}
 				}
-				var result = services.dereferred.create();
+				var result = services.deferred.create();
 				$.ajax(
 					app.config.baseUrl + '/api/' + uri,
 					{
@@ -63,7 +63,7 @@
 			},
 
 			widget: function($container, uri) {
-				var result = services.dereferred.create();
+				var result = services.deferred.create();
 				$container.load(app.config.baseUrl + uri, result.successCallback());
 				return result;
 			}
