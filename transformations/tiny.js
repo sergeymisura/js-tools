@@ -21,4 +21,17 @@
 		}
 	});
 
+	var _spinning3 = '<i class="fa fa-spinner fa-spin"></i> ';
+	app.transformation('.btn-loading-fa', function($element) {
+		$element.button();
+		if ($element.get(0).tagName == 'INPUT')
+		{
+			$element.data('loading-text', _spinning3 + $element.val());
+		}
+		else
+		{
+			$element.data('loading-text', _spinning3 + $element.html());
+		}
+	});
+
 })(jQuery, app);
