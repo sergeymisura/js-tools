@@ -96,7 +96,7 @@
 		return rendering;
 	});
 
-	app.transformation('img[data-src]', function($element) {
+	app.transformation('img[data-src],audio[data-src],video[data-src]', function($element) {
 		if ($element.parents('.rendered').length > 0) {
 			$element.attr('src', $element.data('src'));
 		}
