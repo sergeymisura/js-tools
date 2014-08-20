@@ -40,6 +40,7 @@
 			var $parent = $source.parents('.control-group, .validation-group, .form-group');
 			$source.addClass('invalid');
 			if (showMessage) {
+				$parent.addClass('invalid');
 				$parent.find('.errors').html('').append(
 					$('<label/>').html($source.data('error-message') || messageText).addClass('label').addClass('label-important label-danger')
 				).show();
@@ -89,6 +90,7 @@
 				}
 			}
 			$source.removeClass('invalid');
+			$parent.removeClass('invalid');
 			$parent.find('.errors').html('');
 			return true;
 		};
@@ -117,8 +119,8 @@
 
 		var form = function(form) {
 			var $form = typeof form == "string"
-							? $(form)
-							: (form || $element);
+				? $(form)
+				: (form || $element);
 			return {
 				validate: function() {
 					var result = true;
