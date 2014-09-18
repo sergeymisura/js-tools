@@ -9,6 +9,37 @@ var app = {};
 	var _readyEvents = [];
 
 	$.extend(app, {
+		lastException: null,
+
+		wrap: function(fn, context) {
+			var wrappedFunction = function(){
+				try {
+					return fn.apply(context, arguments);
+				}
+				catch(e) {
+					if (typeof e._stored == 'undefined') {
+						e._stored = true;
+						app.lastException = e;
+					}
+					throw e;
+				}
+			};
+			wrappedFunction._wrapped = true;
+			return wrappedFunction;
+		},
+
+		wrapObject: function(obj) {
+			for(key in obj) {
+				if (obj.hasOwnProperty(key)
+					&& typeof obj[key] == 'function'
+					&& typeof obj[key]._wrapped == 'undefined') {
+
+					obj[key] = this.wrap(obj[key], obj);
+				}
+			}
+			return obj;
+		},
+
 		controller: function(name, controller) {
 			_controllers[name] = controller;
 		},
@@ -73,10 +104,10 @@ var app = {};
 			var services = {};
 
 			$.each(_services, function(name, factory) {
-				services[name] = factory($element, services);
+				services[name] = app.wrapObject(factory($element, services));
 			});
 
-			element.controller = controller($element, services);
+			element.controller = app.wrapObject(controller($element, services));
 			if (typeof element.controller.init !== 'undefined') {
 				element.controller.init();
 			}
