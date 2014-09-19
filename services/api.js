@@ -14,11 +14,11 @@
 					data = null;
 				}
 			}
-			if (callback(xhr.status, data)) {
+			if (callback(xhr.status, data, xhr)) {
 				return;
 			}
 			if (_options.onError) {
-				if (_options.onError(xhr.status, data) == false) {
+				if (_options.onError(xhr.status, data, xhr) == false) {
 					return;
 				}
 			}

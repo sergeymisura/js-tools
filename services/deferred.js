@@ -1,7 +1,7 @@
 (function() {
 
 	var create = function() {
-		return {
+		return app.wrapObject({
 			success: function(callback, context) {
 				this._success = $.proxy(callback, context);
 				return this;
@@ -43,7 +43,7 @@
 			triggerError: function() {
 				this.errorCallback().apply(null, arguments);
 			}
-		}
+		});
 	};
 
 	var deferred = function($element) {
