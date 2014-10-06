@@ -73,7 +73,7 @@ var app = {};
 			var $result = $element;
 			$.each(_transformations, function(idx, transform) {
 				($element.is(transform.selector) ? $element.find(transform.selector).andSelf() : $element.find(transform.selector)).each(function(idx, el) {
-					var $result = transform.fn($(el));
+					var $result = transform.fn($(el), app.services);
 					if (typeof $result != 'undefined' && $result !== null) {
 						$(el).replaceWith($result);
 					}
@@ -95,6 +95,12 @@ var app = {};
 	});
 
 	$(document).ready(function() {
+
+		app.services = {};
+		var $element = $('body');
+		$.each(_services, function(name, factory) {
+			app.services[name] = app.wrapObject(factory($element, app.services));
+		});
 
 		// Should be the last transformation in the chain
 		app.transformation("[data-controller]", function($element) {
