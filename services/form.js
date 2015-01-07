@@ -9,6 +9,13 @@
 				message: 'This field cannot be empty.'
 			},
 
+			checked: {
+				test: function($source) {
+					return $source.attr('checked');
+				},
+				message: 'This should be checked'
+			},
+
 			email: {
 				test: function($source) {
 					return /^[\+0-9a-zA-Z\-\.\_]+@([0-9a-zA-Z\-]+\.)+[0-9a-zA-Z]+$/.test($source.val());
@@ -83,7 +90,8 @@
 							}
 						}
 						if (!rule.test($source, optionsObj)) {
-							_displayError($source, showMessage, rule.message);
+							var message = $source.data('message');
+							_displayError($source, showMessage, message ? message : rule.message);
 							return false;
 						}
 					}
