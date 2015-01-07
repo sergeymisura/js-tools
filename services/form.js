@@ -11,7 +11,7 @@
 
 			checked: {
 				test: function($source) {
-					return $source.attr('checked');
+					return $source.prop('checked');
 				},
 				message: 'This should be checked'
 			},
