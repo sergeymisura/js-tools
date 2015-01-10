@@ -30,7 +30,10 @@ var app = {};
 			apiUrl: 'api',
 
 			/* Support for the legacy js-tools code */
-			legacy: true
+			legacy: true,
+
+			/* Support for Twitter Bootstrap library (2 to support Bootstrap 2, 3 to support Bootstrap 3) */
+			bootstrap: 3
 		},
 		app.config
 	);

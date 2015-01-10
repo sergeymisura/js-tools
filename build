@@ -8,6 +8,5 @@ java -jar $1 \
 	--js services/rendering.js \
 	--js services/form.js \
 	--js transformations/templates.js \
-	--js transformations/defaults.js \
 	--js transformations/tiny.js \
 	--js_output_file js-tools.js
