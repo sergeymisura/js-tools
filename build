@@ -1,6 +1,7 @@
 java -jar $1 \
 	--compilation_level SIMPLE_OPTIMIZATIONS \
 	--js app.js \
+	--js init.js \
 	--js services/api.js \
 	--js services/bind.js \
 	--js services/dereferred.js \
