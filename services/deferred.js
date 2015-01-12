@@ -1,65 +1,71 @@
+/*  */
 (function() {
 
-	var create = function() {
-		return app.wrapObject({
-			success: function(callback, context) {
-				this._success = $.proxy(callback, context);
-				return this;
-			},
+	var serviceFactory = function($element) {
 
-			error: function(callback, context) {
-				this._error = $.proxy(callback, context);
-				return this;
-			},
+		return function() {
+			var context = $element.get(0).controller || window;
 
-			before: function(callback, context) {
-				$.proxy(callback, context)();
-				return this;
-			},
+			return app.wrapObject({
 
-			after: function(callback, context) {
-				this._after = $.proxy(callback, context);
-				return this;
-			},
+				_success: $.noop,
+				_error: $.noop,
+				_after: $.noop,
 
-			successCallback: function() {
-				return $.proxy(function() {
-					(this._after || $.noop).apply(null, arguments);
-					return (this._success || $.noop).apply(null, arguments);
-				}, this);
-			},
+				success: function(callback) {
+					this._success = callback;
+					return this;
+				},
 
-			errorCallback: function() {
-				return $.proxy(function() {
-					(this._after || $.noop).apply(null, arguments);
-					return (this._error || $.noop).apply(null, arguments);
-				}, this);
-			},
+				error: function(callback) {
+					this._error = callback;
+					return this;
+				},
 
-			triggerSuccess: function() {
-				this.successCallback().apply(null, arguments);
-			},
+				before: function(callback) {
+					callback.apply(context);
+					return this;
+				},
 
-			triggerError: function() {
-				this.errorCallback().apply(null, arguments);
-			}
-		});
-	};
+				after: function(callback) {
+					this._after = callback;
+					return this;
+				},
 
-	var deferred = function($element) {
-		return {
-			create: create
+				successCallback: function() {
+					var self = this;
+					return function() {
+						self._after.apply(context, arguments);
+						return self._success.apply(context, arguments);
+					};
+				},
+
+				errorCallback: function() {
+					var self = this;
+					return function() {
+						self._after.apply(context, arguments);
+						return self._error.apply(context, arguments);
+					};
+				},
+
+				triggerSuccess: function() {
+					this.successCallback().apply(null, arguments);
+				},
+
+				triggerError: function() {
+					this.errorCallback().apply(null, arguments);
+				}
+			});
 		};
 	};
-	app.service('deferred', deferred);
 
-	// Left for the backward compatibility
-	app.service('dereferred', function($element) {
-		return {
-			create: function() {
-				app.log('"dereferred" service is misspelled and deprecated. Use "deferred" service instead.');
-				return create();
-			}
+	if (app.config.legacy) {
+		serviceFactory.create = function($element) {
+			app.log('The function service.deferred.create() is deprecated. Use service.deferred() instead.')
+			return serviceFactory($element);
 		};
-	});
+	}
+
+	app.service('deferred', serviceFactory);
+
 })(jQuery, app);
