@@ -22,13 +22,6 @@
 		/* First round of transformations */
 		app.compile($body);
 
-		/* Old-style 'ready' event */
-		if (app.config.legacy) {
-			$.each(_readyEvents, function(idx, callback) {
-				callback();
-			});
-		}
-
 		/* New 'ready' event */
 		$(app).triggerHandler('ready');
 	});

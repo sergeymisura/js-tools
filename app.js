@@ -14,10 +14,7 @@ var app = {};
 		serviceFactories: {},
 
 		/* A collection of application's transformations */
-		transformations: [],
-
-		/* A collection of application's 'ready' event handlers (obsolete) */
-		readyEvents: []
+		transformations: []
 	};
 
 	/* Default configuration values */
@@ -131,16 +128,22 @@ var app = {};
 		 * This function is usually called upon page initialization for BODY element and then after template rendering
 		 * to process newly created HTML. */
 		compile: function($element) {
-			var $result = $element;
 			$.each(this._.transformations, function(idx, transform) {
-				($element.is(transform.selector) ? $element.find(transform.selector).andSelf() : $element.find(transform.selector)).each(function(idx, el) {
+
+				var $scope = $element.find(transform.selector);
+				if ($element.is(transform.selector)) {
+					$scope.andSelf();
+				}
+
+				$scope.each(function(idx, el) {
 					var $result = transform.fn($(el), app.services);
+
 					if (typeof $result != 'undefined' && $result !== null) {
 						$(el).replaceWith($result);
 					}
 				});
 			});
-			return $result;
+			return $element;
 		},
 
 		/* A wrapper around console.log that makes sure logging does not cause problem in older browsers */
@@ -187,7 +190,7 @@ var app = {};
 			* $(app).on('ready', handler) */
 			ready: function(callback, context) {
 				this.log('app.ready() function is deprecated. Use application\'s "ready" event instead.');
-				this._.readyEvents.push($.proxy(callback, context));
+				$(app).on('ready', $.proxy(callback, context));
 			}
 		});
 	}
