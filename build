@@ -4,7 +4,7 @@ java -jar $1 \
 	--js init.js \
 	--js services/api.js \
 	--js services/bind.js \
-	--js services/dereferred.js \
+	--js services/deferred.js \
 	--js services/rendering.js \
 	--js services/form.js \
 	--js transformations/templates.js \
