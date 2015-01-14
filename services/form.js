@@ -1,126 +1,193 @@
-(function() {
+/* This service provides functions for working with forms. Two main pieces are form validation and data collection.
+*
+*  To access service functions, first create a form object:
+*
+*  var form = services.form() to access all form elements within the controller or var form = services.form(selector)
+*  to restrict selection.
+*
+*  Method form.validate() allows you to validate data entered by the user, either using data-required attributes
+*  or 'validation.test' event handlers.
+*
+*  <input type="text" data-required="value" />
+*
+*  or
+*
+*  services.events({ 'input.first-name': { 'validation.test': this.validateName }});
+*
+*  Method form.collect() allows to collect the data from the form elements.
+*/
+(function($, app) {
+
+	/* Built-in validators */
+	var _validationFunctions = {
+
+		/* The element is not empty */
+		value: function($source) {
+			if ($.trim($source.val()) == '') {
+				return 'This field cannot be empty.';
+			}
+		},
+
+		/* The element (checkbox) is checked */
+		checked: function($source) {
+			if (!$source.prop('checked')) {
+				return 'This should be checked';
+			}
+		},
+
+		/* The element contains a valid email */
+		email: function($source) {
+			if (!/^[\+0-9a-zA-Z\-\.\_]+@([0-9a-zA-Z\-]+\.)+[0-9a-zA-Z]+$/.test($source.val())) {
+				return 'Please enter a valid email address';
+			}
+		},
+
+		/* The element contains integer value */
+		integer: function($source) {
+			if (!/^[0-9]+$/.test($source.val())) {
+				return 'Please enter an integer value';
+			}
+		},
+
+		/* The element contains decimal value */
+		decimal: function($source) {
+			if (!/^[0-9]*(\.)?[0-9]+$/.test($source.val())) {
+				return 'Please enter a numeric value';
+			}
+		}
+	};
+
 	app.service('form', function($element, services) {
 
-		var _validationFunctions = {
-			value: {
-				test: function($source) {
-					return $.trim($source.val()) != '';
-				},
-				message: 'This field cannot be empty.'
-			},
-
-			checked: {
-				test: function($source) {
-					return $source.prop('checked');
-				},
-				message: 'This should be checked'
-			},
-
-			email: {
-				test: function($source) {
-					return /^[\+0-9a-zA-Z\-\.\_]+@([0-9a-zA-Z\-]+\.)+[0-9a-zA-Z]+$/.test($source.val());
-				},
-				message: 'Please enter a valid email address'
-			},
-
-			integer: {
-				test: function($source) {
-					return /^[0-9]+$/.test($source.val());
-				},
-				message: 'Please enter an integer value'
-			},
-
-			decimal:{
-				test: function($source) {
-					return /^[0-9]*(\.)?[0-9]+$/.test($source.val());
-				},
-				message: 'Please enter a numeric value'
-			}
-		};
-
-		var _test = function($source) {
-			var type = $source.data('required');
-			return true;
-		};
-
-		var _displayError = function($source, showMessage, messageText) {
-			var $parent = $source.parents('.control-group, .validation-group, .form-group');
-			$source.addClass('invalid');
+		var _displayError = function($input, messageText, showMessage) {
+			var $parent = $input.parents('.control-group, .validation-group, .form-group');
+			$input.addClass('invalid');
 			if (showMessage) {
 				$parent.addClass('invalid');
 				$parent.find('.errors').html('').append(
-					$('<label/>').html($source.data('error-message') || messageText).addClass('label').addClass('label-important label-danger')
+					$('<label/>')
+						.html(messageText)
+						.addClass('label')
+						.addClass('label-important label-danger')
 				).show();
 			}
 		};
 
-		var _validate = function($source, showMessage) {
-			var $parent = $source.parents('.control-group, .validation-group, .form-group');
-
-			if ($source.is(':visible') && !$source.prop('disabled')) {
-				var required = $source.data('required').split('|');
-				var type = required[0];
-				var options = required.slice(1);
-				var rule = _validationFunctions[type];
-
-				var optionsObj = {};
-				options = $.each(options, function(idx, option) {
-					if (option.indexOf(':') == -1) {
-						optionsObj[option] = true;
-					}
-					else {
-						var pair = option.split(':');
-						optionsObj[pair[0]] = pair[1];
-					}
-				})
-
-				if (rule) {
-					var val = $source.val();
-					if (typeof optionsObj['empty'] == 'undefined' || val != '') {
-						if (typeof optionsObj['min'] !== 'undefined') {
-							if (val.length < parseInt(optionsObj['min'])) {
-								_displayError($source, showMessage, 'This field should have at least ' + optionsObj['min'] + ' symbols.');
-								return false;
-							}
-						}
-						if (typeof optionsObj['max'] !== 'undefined') {
-							if (val.length > parseInt(optionsObj['max'])) {
-								_displayError($source, showMessage, 'This field should have maximum ' + optionsObj['max'] + ' symbols.');
-								return false;
-							}
-						}
-						if (!rule.test($source, optionsObj)) {
-							var message = $source.data('message');
-							_displayError($source, showMessage, message ? message : rule.message);
-							return false;
-						}
-					}
-				}
-			}
-			$source.removeClass('invalid');
+		var _clearError = function($input) {
+			var $parent = $input.parents('.control-group, .validation-group, .form-group');
+			$input.removeClass('invalid');
 			$parent.removeClass('invalid');
 			$parent.find('.errors').html('');
+		};
+
+		var _triggerEventsChain = function($input, type, args, defaultCallback) {
+			if ($input.triggerHandler(type, args) !== true) {
+				args.splice(0, 0, $input);
+				if ($(app).triggerHandler(type, args) !== true) {
+					defaultCallback.apply(null, args);
+				}
+			}
+		};
+
+		var _validateInput = function($input, showMessage) {
+			if ($input.is(':visible') && !$input.prop('disabled')) {
+
+				var testEvent = $.Event('validation.test', {
+					setError: function (message) {
+						this.stopImmediatePropagation();
+						this.error = message;
+					},
+
+					error: null
+				});
+
+				$input.trigger(testEvent);
+
+				if (testEvent.error) {
+					_triggerEventsChain(
+						$input,
+						'validation.invalid',
+						[testEvent.error, showMessage],
+						_displayError
+					);
+					return false;
+				}
+				else {
+					_triggerEventsChain(
+						$input,
+						'validation.clear',
+						[],
+						_clearError
+					);
+					return true;
+				}
+			}
 			return true;
 		};
 
+		$(app).on('ready', function() {
+			$('body').on('validation.test', '[data-required]', function(event) {
+				var $source = $(event.target);
+				var required = $source.data('required').split('|');
+				var type = required[0];
+				var options = required.slice(1);
+				var test = _validationFunctions[type];
+
+				var optionsMap = {};
+				$.each(options, function(idx, option) {
+					if (option.indexOf(':') == -1) {
+						optionsMap[option] = true;
+					}
+					else {
+						var pair = option.split(':');
+						optionsMap[pair[0]] = pair[1];
+					}
+				});
+
+				if (test) {
+					var val = $source.val();
+					if (typeof optionsMap['empty'] == 'undefined' || val != '') {
+						if (typeof optionsMap['min'] !== 'undefined') {
+							if (val.length < parseInt(optionsObj['min'])) {
+								event.setError('This field should have at least ' + optionsObj['min'] + ' symbols.');
+								return;
+							}
+						}
+						if (typeof optionsMap['max'] !== 'undefined') {
+							if (val.length > parseInt(optionsObj['max'])) {
+								event.setError('This field should have maximum ' + optionsObj['max'] + ' symbols.');
+								return;
+							}
+						}
+						var result = test($source, optionsMap);
+						if (result) {
+							var message = $source.data('message');
+							event.setError(message || result);
+							return;
+						}
+					}
+				}
+			});
+		});
+
 		services.events({
-			'input[data-required], textarea[data-required]': {
+			'input, textarea': {
 				focus: function($source) {
-					_validate($source, false);
+					_validateInput($source, false);
 				},
 				keyup: function($source) {
-					_validate($source, false);
+					_validateInput($source, false);
 				},
 				blur: function($source) {
-					_validate($source, true);
+					_validateInput($source, true);
 				}
 			},
-			'select[data-required]': {
+			'select': {
 				change: function($source) {
-					_validate($source, true);
+					_validateInput($source, true);
 				},
 				focus: function($source) {
-					_validate($source, false);
+					_validateInput($source, false);
 				}
 			}
 		});
@@ -132,14 +199,10 @@
 			return {
 				validate: function() {
 					var result = true;
-					$form.find('[data-required]').each(function(idx, element){
-						result = _validate($(element), true) && result;
+					$form.find('input, textarea, select').each(function(idx, element){
+						result = _validateInput($(element), true) && result;
 					});
 					return result;
-				},
-
-				displayError: function($source, messageText) {
-					_displayError($source, true, messageText);
 				},
 
 				collect: function(list) {
