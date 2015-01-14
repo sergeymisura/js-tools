@@ -3,7 +3,7 @@ return [
 	'app.js',
 	'init.js',
 	'services/api.js',
-	'services/bind.js',
+	'services/events.js',
 	'services/deferred.js',
 	'services/rendering.js',
 	'services/form.js',
