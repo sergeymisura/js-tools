@@ -59,6 +59,8 @@
 
 	app.service('form', function($element, services) {
 
+		/* Default method for displaying validation errors. Being called if no handlers are attached to
+		 * validation.invalid event */
 		var _displayError = function($input, messageText, showMessage) {
 			var $parent = $input.parents('.control-group, .validation-group, .form-group');
 			$input.addClass('invalid');
@@ -73,6 +75,8 @@
 			}
 		};
 
+		/* Default method for clearing validation errors. Being called if no handlers are attached to
+		 * validation.clear event */
 		var _clearError = function($input) {
 			var $parent = $input.parents('.control-group, .validation-group, .form-group');
 			$input.removeClass('invalid');
@@ -80,6 +84,10 @@
 			$parent.find('.errors').html('');
 		};
 
+		/* Triggers the event consequently:
+		*   - For the element that is being validated
+		*   - For the app object
+		*   - If no handlers have processed the event, the defaultCallback argument is used */
 		var _triggerEventsChain = function($input, type, args, defaultCallback) {
 			if ($input.triggerHandler(type, args) !== true) {
 				args.splice(0, 0, $input);
@@ -89,9 +97,16 @@
 			}
 		};
 
+		/*
+		 * Validates a single input element.
+		 */
 		var _validateInput = function($input, showMessage) {
+
+			/* No validation for hidden or disabled elements */
 			if ($input.is(':visible') && !$input.prop('disabled')) {
 
+				/* Firing 'validation.test' event to perform the validation. The event handler must call event.setError
+				 * if the validation fails. */
 				var testEvent = $.Event('validation.test', {
 					setError: function (message) {
 						this.stopImmediatePropagation();
@@ -100,9 +115,10 @@
 
 					error: null
 				});
-
 				$input.trigger(testEvent);
 
+				/* If the error was set by one of the handlers, fire 'validation.invalid' event. Otherwise,
+				 * 'validation.clear'. */
 				if (testEvent.error) {
 					_triggerEventsChain(
 						$input,
@@ -125,51 +141,51 @@
 			return true;
 		};
 
-		$(app).on('ready', function() {
-			$('body').on('validation.test', '[data-required]', function(event) {
-				var $source = $(event.target);
-				var required = $source.data('required').split('|');
-				var type = required[0];
-				var options = required.slice(1);
-				var test = _validationFunctions[type];
+		/* Attaching validation event handler to the elements with 'data-require' attribute. */
+		$('body').on('validation.test', '[data-required]', function(event) {
+			var $source = $(event.target);
+			var required = $source.data('required').split('|');
+			var type = required[0];
+			var options = required.slice(1);
+			var test = _validationFunctions[type];
 
-				var optionsMap = {};
-				$.each(options, function(idx, option) {
-					if (option.indexOf(':') == -1) {
-						optionsMap[option] = true;
-					}
-					else {
-						var pair = option.split(':');
-						optionsMap[pair[0]] = pair[1];
-					}
-				});
+			var optionsMap = {};
+			$.each(options, function(idx, option) {
+				if (option.indexOf(':') == -1) {
+					optionsMap[option] = true;
+				}
+				else {
+					var pair = option.split(':');
+					optionsMap[pair[0]] = pair[1];
+				}
+			});
 
-				if (test) {
-					var val = $source.val();
-					if (typeof optionsMap['empty'] == 'undefined' || val != '') {
-						if (typeof optionsMap['min'] !== 'undefined') {
-							if (val.length < parseInt(optionsObj['min'])) {
-								event.setError('This field should have at least ' + optionsObj['min'] + ' symbols.');
-								return;
-							}
-						}
-						if (typeof optionsMap['max'] !== 'undefined') {
-							if (val.length > parseInt(optionsObj['max'])) {
-								event.setError('This field should have maximum ' + optionsObj['max'] + ' symbols.');
-								return;
-							}
-						}
-						var result = test($source, optionsMap);
-						if (result) {
-							var message = $source.data('message');
-							event.setError(message || result);
+			if (test) {
+				var val = $source.val();
+				if (typeof optionsMap['empty'] == 'undefined' || val != '') {
+					if (typeof optionsMap['min'] !== 'undefined') {
+						if (val.length < parseInt(optionsObj['min'])) {
+							event.setError('This field should have at least ' + optionsObj['min'] + ' symbols.');
 							return;
 						}
 					}
+					if (typeof optionsMap['max'] !== 'undefined') {
+						if (val.length > parseInt(optionsObj['max'])) {
+							event.setError('This field should have maximum ' + optionsObj['max'] + ' symbols.');
+							return;
+						}
+					}
+					var result = test($source, optionsMap);
+					if (result) {
+						var message = $source.data('message');
+						event.setError(message || result);
+						return;
+					}
 				}
-			});
+			}
 		});
 
+		/* Attaching event handlers to invoke validation on the focus or content changes */
 		services.events({
 			'input, textarea': {
 				focus: function($source) {
@@ -192,11 +208,16 @@
 			}
 		});
 
+		/* This function creates a new form object attached either to the controller's DOM node or to it's child
+		 * specified as parameter. */
 		var form = function(form) {
+
 			var $form = typeof form == "string"
 				? $(form)
 				: (form || $element);
+
 			return {
+				/* Performs validation of all inputs within the form. */
 				validate: function() {
 					var result = true;
 					$form.find('input, textarea, select').each(function(idx, element){
@@ -205,6 +226,7 @@
 					return result;
 				},
 
+				/* Collects data from all inputs inside the form */
 				collect: function(list) {
 					var data = {};
 					$form.find('input[type="text"], input[type="email"], input[type="password"], select, textarea, input[type="hidden"]').each(
@@ -233,6 +255,7 @@
 			};
 		};
 
+		/* Adds additional project-specific validation rules */
 		form.addRules = function (rules) {
 			$.extend(_validationFunctions, rules);
 		};
