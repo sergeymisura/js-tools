@@ -1,65 +1,87 @@
+/* This service creates 'delayed promise' object for asynchronous operations like API calls. All handlers passed to
+ * this service will be called in the context of the controller.  */
 (function() {
 
-	var create = function() {
-		return app.wrapObject({
-			success: function(callback, context) {
-				this._success = $.proxy(callback, context);
-				return this;
-			},
+	var serviceFactory = function($element) {
 
-			error: function(callback, context) {
-				this._error = $.proxy(callback, context);
-				return this;
-			},
+		return function() {
+			var context = $element.get(0).controller || window;
 
-			before: function(callback, context) {
-				$.proxy(callback, context)();
-				return this;
-			},
+			return app.wrapObject({
 
-			after: function(callback, context) {
-				this._after = $.proxy(callback, context);
-				return this;
-			},
+				/* Handler for successful outcome of the operation */
+				_success: $.noop,
 
-			successCallback: function() {
-				return $.proxy(function() {
-					(this._after || $.noop).apply(null, arguments);
-					return (this._success || $.noop).apply(null, arguments);
-				}, this);
-			},
+				/* Handler that will be called if the operation is failed */
+				_error: $.noop,
 
-			errorCallback: function() {
-				return $.proxy(function() {
-					(this._after || $.noop).apply(null, arguments);
-					return (this._error || $.noop).apply(null, arguments);
-				}, this);
-			},
+				/* This handler will be called in any case after the operation is complete, before 'error' or 'success'
+				handler */
+				_after: $.noop,
 
-			triggerSuccess: function() {
-				this.successCallback().apply(null, arguments);
-			},
+				/* Sets the 'success' handler  */
+				success: function(callback) {
+					this._success = callback;
+					return this;
+				},
 
-			triggerError: function() {
-				this.errorCallback().apply(null, arguments);
-			}
-		});
-	};
+				/* Sets the 'error' handler  */
+				error: function(callback) {
+					this._error = callback;
+					return this;
+				},
 
-	var deferred = function($element) {
-		return {
-			create: create
+				/* Sets the 'before' handler (will be called immediately). */
+				before: function(callback) {
+					callback.apply(context);
+					return this;
+				},
+
+				/* Sets the 'after' handler  */
+				after: function(callback) {
+					this._after = callback;
+					return this;
+				},
+
+				/* Creates the 'success' callback function that could be passed to other APIs, like jQuery.ajax */
+				successCallback: function() {
+					var self = this;
+					return function() {
+						self._after.apply(context, arguments);
+						return self._success.apply(context, arguments);
+					};
+				},
+
+				/* Creates the 'error' callback function that could be passed to other APIs, like jQuery.ajax */
+				errorCallback: function() {
+					var self = this;
+					return function() {
+						self._after.apply(context, arguments);
+						return self._error.apply(context, arguments);
+					};
+				},
+
+				/* Triggers the 'success' callback */
+				triggerSuccess: function() {
+					this.successCallback().apply(null, arguments);
+				},
+
+				/* Triggers the 'error' callback */
+				triggerError: function() {
+					this.errorCallback().apply(null, arguments);
+				}
+			});
 		};
 	};
-	app.service('deferred', deferred);
 
-	// Left for the backward compatibility
-	app.service('dereferred', function($element) {
-		return {
-			create: function() {
-				app.log('"dereferred" service is misspelled and deprecated. Use "deferred" service instead.');
-				return create();
-			}
+	if (app.config.legacy) {
+		/* Support for the legacy interface */
+		serviceFactory.create = function($element) {
+			app.log('The function service.deferred.create() is deprecated. Use service.deferred() instead.')
+			return serviceFactory($element);
 		};
-	});
+	}
+
+	app.service('deferred', serviceFactory);
+
 })(jQuery, app);
