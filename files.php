@@ -11,4 +11,5 @@ return [
 	'rendering/templates.js',
 	'rendering/jquery-tmpl-wrapper.js',
 	'rendering/mustache-wrapper.js',
+	'rendering/underscore-wrapper.js',
 ];
