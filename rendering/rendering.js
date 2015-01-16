@@ -43,8 +43,6 @@
 				.data('template', template)
 				.addClass('rendered')
 				.removeAttr('data-template');
-
-			return $new;
 		};
 
 		/* A shortcut for services.rendering.render() */
