@@ -24,8 +24,17 @@
 			}
 
 			$element.replaceWith($placeholder);
+
+			var html;
+			if ($element.prop('tagName') == 'SCRIPT') {
+				html = $element.html();
+			}
+			else {
+				html = $element.outerHtml();
+			}
+
 			controllerElement.templates[templateName] = {
-				fn: app.templateWrapper()($element),
+				fn: app.templateWrapper()(html),
 				placeholder: $placeholder
 			};
 		}

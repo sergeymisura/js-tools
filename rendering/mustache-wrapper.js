@@ -3,10 +3,9 @@
 
 	app.templateWrapper(
 		'Mustache',
-		function($template)
+		function(templateHtml)
 		{
 			/* Compiling template */
-			var templateHtml = $template.outerHtml();
 			Mustache.parse(templateHtml);
 
 			return function(data, filters) {

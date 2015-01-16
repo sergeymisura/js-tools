@@ -6,12 +6,12 @@
 
 	app.templateWrapper(
 		'jQuery.tmpl',
-		function($template)
+		function(templateHtml)
 		{
 			var name = 'jstools-jquery-tmpl-' + _counter++;
 
 			/* Compiling template */
-			$.template(name, $template.outerHtml());
+			$.template(name, templateHtml);
 
 			return function(data, filters) {
 
