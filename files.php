@@ -5,8 +5,9 @@ return [
 	'services/api.js',
 	'services/events.js',
 	'services/deferred.js',
-	'services/rendering.js',
 	'services/form.js',
-	'transformations/templates.js',
 	'transformations/tiny.js',
+	'rendering/rendering.js',
+	'rendering/templates.js',
+	'rendering/jquery-tmpl-wrapper.js',
 ];

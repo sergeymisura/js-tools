@@ -1,11 +1,16 @@
 (function() {
+
+	/* Built-in rendering filters */
 	var _defaultFilters = {
+
+		/* URL for gravatar image */
 		$gravatar: function(email, size, id) {
 			size = size || 80;
 			id = id || 'mm';
 			return 'https://secure.gravatar.com/avatar/' + md5(email) + '?s=' + size + '&d=' + id;
 		},
 
+		/* Phone formatting */
 		$phone: function(phone) {
 			if (phone.length != 10) {
 				return phone;
@@ -13,6 +18,7 @@
 			return '(' + phone.substring(0, 3) + ') ' + phone.substring(3, 6) + ' - ' + phone.substring(6);
 		},
 
+		/* Date formatting */
 		$date: function(date) {
 			if (typeof date != 'object') {
 				if (/^[0-9]{4}-[0-9][0-9]-[0-9][0-9]/.test(date)) {
@@ -28,55 +34,55 @@
 	};
 
 	app.service('rendering', function($element) {
+
+		/* Renders the template for one element of the source array */
 		var _renderOne = function(template, data, filters) {
-			var $new = template.template.tmpl($.extend($.extend(data, filters), _defaultFilters));
-			if ($new.prop('tagName') == 'SCRIPT') {
-				$new = $('<div />').html($new.html()).children().attr('data-template', $new.attr('data-template'));
-			}
-			$new.addClass('rendered');
-			$new.data('data', data);
-			$new.data('template', template);
-			$new.data('filters', filters);
-			$new.find('a[href="#"]').attr('href', 'javascript:void(0);');
-			$new.addClass($new.attr('data-template') + '-rendered');
-			$new.removeAttr('data-template');
-			$new.removeAttr('data-template-placeholder');
+			return template.fn(data, $.extend(filters, _defaultFilters))
+				.data('data', data)
+				.data('filters', filters)
+				.data('template', template)
+				.addClass('rendered')
+				.removeAttr('data-template');
+
 			return $new;
 		};
 
+		/* A shortcut for services.rendering.render() */
 		var rendering = function(name, data, filters) {
 			return rendering.render(name, data,filters);
 		};
 
 		$.extend(rendering, {
+			/* Renders the template using the provided data */
 			render: function(name, data, filters) {
 				filters = filters || {};
 				var template = $element[0].templates[name];
-				var $placeholder = $element.find('.' + name + '-placeholder');
+
 				if (template) {
-					$remove = $element.find('.' + name + '-rendered');
-					if ($placeholder.length == 0) {
-						$placeholder = $element.find('.' + name + '-rendered:first');
-					}
-					$placeholder.html("");
+					var $result = $();
+
 					if (data.constructor === Array) {
 						$.each(data, function(idx, item) {
-							$placeholder.append(_renderOne(template, item, filters));
+							$result = $result.add(_renderOne(template, item, filters));
 						});
 					}
 					else {
-						$placeholder.append(_renderOne(template, data, filters));
+						$result = $result.add(_renderOne(template, data, filters));
 					}
-					$new = $placeholder.children();
-					if ($new.length == 0) {
-						$new = $('<div />').addClass(name + '-placeholder');
+					if ($result.length == 0) {
+						$result = $("<script />").attr('type', 'text/html');
 					}
-					$placeholder.replaceWith($new);
-					$remove.remove();
-					return app.compile($new);
+
+					$result = app.compile($result);
+
+					template.placeholder.replaceWith($result);
+					template.placeholder = $result;
+
+					return $result;
 				}
 			},
 
+			/* Re-renders part of the template for one of the elements */
 			refresh: function($part, data) {
 				$part = this.container($part);
 				if (typeof data == 'undefined') {
@@ -89,17 +95,12 @@
 				return app.compile($new);
 			},
 
+			/* Returns the closest parent that was a top element for the template */
 			container: function($el) {
-				return $el.hasClass('rendered') ? $el : $el.parents('.rendered');
+				return $el.closest('.rendered');
 			}
 		});
 		return rendering;
-	});
-
-	app.transformation('img[data-src],audio[data-src],video[data-src]', function($element) {
-		if ($element.parents('.rendered').length > 0) {
-			$element.attr('src', $element.data('src'));
-		}
 	});
 
 })(jQuery, app);

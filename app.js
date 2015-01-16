@@ -14,7 +14,10 @@ var app = {};
 		serviceFactories: {},
 
 		/* A collection of application's transformations */
-		transformations: []
+		transformations: [],
+
+		/* A collection of wrappers for template engines */
+		templateWrappers: {}
 	};
 
 	/* Default configuration values */
@@ -30,7 +33,10 @@ var app = {};
 			legacy: true,
 
 			/* Support for Twitter Bootstrap library (2 to support Bootstrap 2, 3 to support Bootstrap 3) */
-			bootstrap: 3
+			bootstrap: 3,
+
+			/* Template engine to be used */
+			templates: 'jQuery.tmpl'
 		},
 		app.config
 	);
@@ -100,6 +106,15 @@ var app = {};
 				this._.serviceFactories[name] = factory;
 				return factory;
 			}
+		},
+
+		/* When called with no arguments, returns the template wrapper specified in the app configuration. When called
+		 * with arguments, registers a template wrapper */
+		templateWrapper: function(name, wrapper) {
+			if (arguments.length == 0) {
+				return this._.templateWrappers[app.config.templates];
+			}
+			this._.templateWrappers[name] = wrapper;
 		},
 
 		/* Registers a new transformation with the application.
@@ -194,5 +209,10 @@ var app = {};
 			}
 		});
 	}
+
+	/* Small extension for jQuery */
+	$.fn.outerHtml = function() {
+		return $('<div/>').append(this).html();
+	};
 
 })(jQuery);
