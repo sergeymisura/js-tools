@@ -147,7 +147,7 @@ var app = {};
 
 				var $scope = $element.find(transform.selector);
 				if ($element.is(transform.selector)) {
-					$scope.andSelf();
+					$scope = $scope.add($element);
 				}
 
 				$scope.each(function(idx, el) {
@@ -182,9 +182,11 @@ var app = {};
 			var $element = $(element);
 			var controllerFactory = app._.controllerFactories[$element.attr('data-controller')];
 			if (typeof controllerFactory != 'undefined') {
+				var services = this.createServices($element);
 				element.controller = app.wrapObject(
-					controllerFactory($element, this.createServices($element))
+					controllerFactory($element, services)
 				);
+				element.controller.$ = services.$;
 
 				if (typeof element.controller.init == 'function') {
 					element.controller.init();
