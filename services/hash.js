@@ -1,6 +1,10 @@
 (function() {
+	/* Service that simplifies work with 'hash' portions of urls */
 	app.service('hash', function($element, services) {
 
+		/* Sets the functions to handle changes in the hash portions of the URL.
+		 * The first part of the hash will be used to determine the handler and the rest will be passed to the handler
+		 * as arguments. */
 		var service = function(map) {
 			$(window).on('hashchange', function() {
 
@@ -34,8 +38,11 @@
 		};
 
 		$.extend(service, {
+			/* Just an alias for the binding function */
 			bind: service,
 
+			/* Sets the hash portion of the URL by combining the arguments.
+			 * services.hash.go(['user', 2]) will set the URL to #users/2 */
 			go: function() {
 				document.location = '#' + $.makeArray(arguments).join('/');
 			}
