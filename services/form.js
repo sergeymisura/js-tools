@@ -223,6 +223,9 @@
 					$form.find('input, textarea, select').each(function(idx, element){
 						result = _validateInput($(element), true) && result;
 					});
+					if (!result) {
+						$form.find('input.invalid,select.invalid').first().focus();
+					}
 					return result;
 				},
 
