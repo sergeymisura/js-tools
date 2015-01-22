@@ -180,7 +180,8 @@ var app = {};
 		/* Instantiates and initializes new controller */
 		createController: function(element) {
 			var $element = $(element);
-			var controllerFactory = app._.controllerFactories[$element.attr('data-controller')];
+			var controllerName = $element.attr('data-controller');
+			var controllerFactory = app._.controllerFactories[controllerName];
 			if (typeof controllerFactory != 'undefined') {
 				var services = this.createServices($element);
 				element.controller = app.wrapObject(
@@ -193,6 +194,9 @@ var app = {};
 				}
 
 				return element.controller;
+			}
+			else {
+				throw 'Unknown controller: "' + controllerName + '"';
 			}
 		}
 	});
