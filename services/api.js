@@ -4,17 +4,7 @@
 	/* A factory for the internal error handler */
 	var _errorCallbackFactory = function(result) {
 		return function(xhr, textStatus, errorThrown) {
-			var data = null;
-
-			/* Checking if the server has returned some JSON data along with the HTTP error response */
-			if (xhr.getResponseHeader('Content-Type') == 'application/json') {
-				try {
-					data = $.parseJSON(xhr.responseText);
-				}
-				catch(ex) {
-					data = null;
-				}
-			}
+			var data = xhr.responseJSON;
 
 			$(app).trigger('api.error', [xhr.status, data, xhr]);
 
