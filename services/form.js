@@ -61,17 +61,24 @@
 
 		/* Default method for displaying validation errors. Being called if no handlers are attached to
 		 * validation.invalid event */
-		var _displayError = function($input, messageText, showMessage) {
+		var _displayError = function($input, message, showMessage) {
 			var $parent = $input.parents('.control-group, .validation-group, .form-group');
 			$input.addClass('invalid');
 			if (showMessage) {
 				$parent.addClass('invalid');
-				$parent.find('.errors').html('').append(
-					$('<label/>')
-						.html(messageText)
-						.addClass('label')
-						.addClass('label-important label-danger')
-				).show();
+				var $errors = $parent.find('.errors').html('');
+				if (typeof message == 'string') {
+					message = [message];
+				}
+				$.each(message, function(idx, messageText) {
+					$errors.append(
+						$('<label/>')
+							.html(messageText)
+							.addClass('label')
+							.addClass('label-important label-danger')
+					);
+				});
+				$errors.show();
 			}
 		};
 
@@ -224,6 +231,42 @@
 						result = _validateInput($(element), true) && result;
 					});
 					return result;
+				},
+
+				/* Clears all validation errors */
+				clear: function() {
+					$form.find('input, textarea, select').each(function(idx, input){
+						_triggerEventsChain(
+							$(input),
+							'validation.clear',
+							[],
+							_clearError
+						);
+					});
+				},
+
+				/* Displays validation errors (to handle server-side validation) */
+				display: function() {
+					var errors;
+					if (arguments.length == 2)
+					{
+						errors = {};
+						errors[arguments[0]] = arguments[1];
+					}
+					else
+					{
+						errors = arguments[0];
+					}
+
+					$.each(errors, function(name, message) {
+						var $input = $('[name="' + name + '"]');
+						_triggerEventsChain(
+							$input,
+							'validation.invalid',
+							[message, true],
+							_displayError
+						);
+					});
 				},
 
 				/* Collects data from all inputs inside the form */
