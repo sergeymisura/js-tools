@@ -42,6 +42,13 @@
 			}
 		},
 
+		/* The element contains a valid 5-digit zip code */
+		zip: function($source) {
+			if (!/^[0-9]{5}$/.test($source.val())) {
+				return 'Please enter a valid zip code';
+			}
+		},
+
 		/* The element contains integer value */
 		integer: function($source) {
 			if (!/^[0-9]+$/.test($source.val())) {
