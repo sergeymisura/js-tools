@@ -14,7 +14,7 @@
 				$.each(filters, function(key, fn) {
 					mustacheFilters[key] = function() {
 						return function(text, render) {
-							return fn(render(text));
+							return fn(render(text), data);
 						}
 					}
 				});
