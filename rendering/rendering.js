@@ -73,7 +73,8 @@
 
 					$result = app.compile($result);
 
-					template.placeholder.replaceWith($result);
+					$(template.placeholder.get(0)).replaceWith($result);
+					template.placeholder.remove();
 					template.placeholder = $result;
 
 					return $result;
