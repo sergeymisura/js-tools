@@ -1,4 +1,4 @@
-(function() {
+(function($, app) {
 	/* Service that simplifies work with 'hash' portions of urls */
 	app.service('hash', function($element, services) {
 
@@ -6,7 +6,7 @@
 		 * The first part of the hash will be used to determine the handler and the rest will be passed to the handler
 		 * as arguments. */
 		var service = function(map) {
-			$(window).on('hashchange', function() {
+			var hashChangeHandler = function() {
 
 				var hash = document.location.hash;
 				if (hash.indexOf('#') == 0) {
@@ -34,7 +34,13 @@
 					}
 					callable.apply($element[0].controller, args);
 				}
-			});
+			};
+
+			$(window).on('hashchange', hashChangeHandler);
+
+			if (document.location.hash != '') {
+				hashChangeHandler();
+			}
 		};
 
 		$.extend(service, {
