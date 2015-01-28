@@ -27,7 +27,7 @@
 				}
 				var result = services.deferred();
 				$.ajax(
-					app.config.apiUrl + '/' + uri,
+					app.config.baseUrl + app.config.apiUrl + '/' + uri,
 					{
 						data: data,
 						success: result.successCallback(),
@@ -44,7 +44,7 @@
 				}
 				var result = services.deferred();
 				$.ajax(
-					app.config.apiUrl + '/' + uri,
+					app.config.baseUrl + app.config.apiUrl + '/' + uri,
 					{
 						type: 'post',
 						contentType: 'application/json',
