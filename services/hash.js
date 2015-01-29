@@ -49,9 +49,7 @@
 
 			$(window).on('hashchange', hashChangeHandler);
 
-			if (document.location.hash != '') {
-				hashChangeHandler();
-			}
+			hashChangeHandler();
 		};
 
 		$.extend(service, {
