@@ -13,16 +13,26 @@
 					hash = hash.substr(1);
 				}
 
-				var parts = hash.split('/');
+				var queryString = '';
+				if (hash.indexOf('?') != -1) {
+					queryString = hash.substr(hash.indexOf('?') + 1);
+					hash = hash.substr(0, hash.indexOf('?'));
+				}
+
+				var parts = queryString.split('&');
+				var query = {};
+				for (var i = 0; i < parts.length; i++) {
+					var pair = parts[i].split('=');
+					query[decodeURIComponent(pair[0])] = decodeURIComponent(pair.length > 1 ? pair[1] : '');
+				}
+
+				parts = hash.split('/');
 				var handler = null;
-				var args;
 				if (typeof map[parts[0]] !== 'undefined') {
 					handler = map[parts[0]];
-					args = parts.slice(1);
 				}
 				else if (typeof map[''] !== 'undefined') {
 					handler = map[''];
-					args = parts;
 				}
 				if (handler != null) {
 					var callable;
@@ -32,7 +42,8 @@
 					else {
 						callable = handler;
 					}
-					callable.apply($element[0].controller, args);
+					parts.splice(0, 0, { hash: hash, queryString: queryString, query: query });
+					callable.apply($element[0].controller, parts);
 				}
 			};
 
