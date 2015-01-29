@@ -90,6 +90,7 @@
 				var template = $part.data('template');
 				var filters = $part.data('filters');
 				var $new = _renderOne(template, data, filters);
+				template.placeholder.splice(template.placeholder.index($part.get(0)), 1, $new.get(0));
 				$part.replaceWith($new);
 				return app.compile($new);
 			},
