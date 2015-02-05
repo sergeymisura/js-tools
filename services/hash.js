@@ -104,11 +104,11 @@
 			 */
 			ALL: /.*/,
 
-			/* Sets the hash portion of the URL by combining the first array into the path separated by '/' and using
+			/* Builds the hash portion of the URL by combining the first array into the path separated by '/' and using
 			 * the second optional argument as a collection of query string parameters.
 			 *
-			 * services.hash.go(['user', 2], { display: 'all' }) will set the URL to #users/2?display=all */
-			go: function(path, params) {
+			 * services.hash.build(['user', 2], { display: 'all' }) will return '#users/2?display=all' */
+			build: function(path, params) {
 				if (path.constructor == 'array') {
 					path = path.join('/');
 				}
@@ -117,11 +117,37 @@
 				if (params) {
 					var paramsArray = [];
 					$.each(params, function(key, value) {
-						paramsArray.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+						if (value == '') {
+							paramsArray.push(encodeURIComponent(key));
+						}
+						else {
+							paramsArray.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+						}
 					});
-					hash += '?' + paramsArray.join('&');
+					if (paramsArray.length > 0) {
+						hash += '?' + paramsArray.join('&');
+					}
 				}
-				document.location = hash;
+				return hash;
+			},
+
+			/* Builds and applies the hash portion of the URL (see hash.build()) */
+			go: function(path, params) {
+				document.location = this.build(path, params);
+			},
+
+			/**
+			 * Sets the new value for one of the parameters and returns a new URL.
+			 *
+			 * @param {string} param  Parameter to set
+			 * @param {string} value  New value
+			 *
+			 * @returns {string}  Updated URL
+			 */
+			set: function(param, value) {
+				var query = $.extend({}, _parsedHash.query);
+				query[param] = value || '';
+				return this.build(_parsedHash.path, query);
 			},
 
 			/**
