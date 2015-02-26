@@ -313,6 +313,7 @@
 						if (_isCheckboxVisible($el) && $el.prop('checked') && !$el.prop('disabled')) {
 							var name = $el.attr('name');
 							if (name.indexOf('[]') == name.length - 2 && name.length > 2) {
+								name = name.substr(0, name.length - 2);
 								if (typeof data[name] == 'undefined') {
 									data[name] = [];
 								}
