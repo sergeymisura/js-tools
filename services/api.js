@@ -39,6 +39,16 @@
 
 			/* A wrapper for HTTP POST call */
 			post: function(uri, data) {
+				return this._jsonBodyRequest(uri, data, 'post');
+			},
+
+			/* A wrapper for HTTP PUT call */
+			put: function(uri, data) {
+				return this._jsonBodyRequest(uri, data, 'put');
+			},
+
+			/* A wrapper HTTP calls made with a json body (normally put or post) */
+			_jsonBodyRequest: function(uri, data, verb){
 				if (typeof data == 'undefined') {
 					data = {}
 				}
@@ -46,7 +56,7 @@
 				$.ajax(
 					app.config.baseUrl + app.config.apiUrl + '/' + uri,
 					{
-						type: 'post',
+						type: verb,
 						contentType: 'application/json',
 						dataType: 'json',
 						data: JSON.stringify(data),
@@ -56,6 +66,7 @@
 				);
 				return result;
 			}
+
 		};
 	};
 
