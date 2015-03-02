@@ -109,7 +109,7 @@
 			 *
 			 * services.hash.build(['user', 2], { display: 'all' }) will return '#users/2?display=all' */
 			build: function(path, params) {
-				if (path.constructor == 'array') {
+				if (path.constructor == Array) {
 					path = path.join('/');
 				}
 
