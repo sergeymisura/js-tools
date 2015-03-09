@@ -36,7 +36,10 @@ var app = {};
 			bootstrap: 3,
 
 			/* Template engine to be used */
-			templates: 'jQuery.tmpl'
+			templates: 'jQuery.tmpl',
+
+			/* True to catch all exceptions and trigger app:error event */
+			catchExceptions: true
 		},
 		app.config
 	);
@@ -57,18 +60,23 @@ var app = {};
 		 * b) the exception thrown inside the function will be caught and processed by the application
 		 */
 		wrap: function(fn, context) {
-			var wrappedFunction = function(){
-				try {
-					return fn.apply(context, arguments);
-				}
-				catch(e) {
-					if (typeof e._stored == 'undefined') {
-						e._stored = true;
-						app.lastException = e;
+			var wrappedFunction = app.config.catchExceptions
+				? function(){
+					try {
+						return fn.apply(context, arguments);
 					}
-					throw e;
+					catch(e) {
+						if (typeof e._stored == 'undefined') {
+							e._stored = true;
+							app.lastException = e;
+							app.trigger('error', e);
+						}
+						throw e;
+					}
 				}
-			};
+				: function () {
+					return fn.apply(context, arguments);
+				};
 			wrappedFunction._wrapped = true;
 			return wrappedFunction;
 		},
