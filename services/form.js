@@ -42,6 +42,12 @@
 			}
 		},
 
+		url: function($source) {
+			if (!/^https?:\/\/[^\s/$.?#].[^\s]*$/i.test($source.val())) {
+				return 'Please enter a valid URL';
+			}
+		},
+
 		/* The element contains a valid 5-digit zip code */
 		zip: function($source) {
 			if (!/^[0-9]{5}$/.test($source.val())) {
