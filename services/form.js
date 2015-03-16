@@ -42,6 +42,12 @@
 			}
 		},
 
+		url: function($source) {
+			if (!/^https?:\/\/[^\s/$.?#].[^\s]*$/i.test($source.val())) {
+				return 'Please enter a valid URL';
+			}
+		},
+
 		/* The element contains a valid 5-digit zip code */
 		zip: function($source) {
 			if (!/^[0-9]{5}$/.test($source.val())) {
@@ -65,6 +71,24 @@
 	};
 
 	app.service('form', function($element, services) {
+
+		/**
+		 * Verifies if the checkbox/radio control is visible. Supports 'fancy' controls, where actual checkbox is always
+		 * hidden and only label is displayed
+		 *
+		 * @param  $el  Checkbox/redio control element
+		 * @private
+		 */
+		var _isCheckboxVisible = function($el) {
+			if ($el.is(':visible')) {
+				return true;
+			}
+			var $parent = $el.parent();
+			if ($parent.hasClass('checkbox') || $parent.hasClass('radio')) {
+				return $parent.is(':visible');
+			}
+			return false;
+		};
 
 		/* Default method for displaying validation errors. Being called if no handlers are attached to
 		 * validation.invalid event */
@@ -292,8 +316,18 @@
 					);
 					$form.find('input[type="checkbox"],input[type="radio"]').each(function(idx, el) {
 						var $el = $(el);
-						if ($el.is(':visible') && $el.prop('checked') && !$el.prop('disabled')) {
-							data[$el.attr('name')] = el.value;
+						if (_isCheckboxVisible($el) && $el.prop('checked') && !$el.prop('disabled')) {
+							var name = $el.attr('name');
+							if (name.indexOf('[]') == name.length - 2 && name.length > 2) {
+								name = name.substr(0, name.length - 2);
+								if (typeof data[name] == 'undefined') {
+									data[name] = [];
+								}
+								data[name].push(el.value);
+							}
+							else {
+								data[name] = el.value;
+							}
 						}
 					});
 					if (typeof list != 'undefined') {

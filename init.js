@@ -1,11 +1,11 @@
 /* Application's initialization code  */
 (function($, app) {
 
-	/* Wrapping application's functions, so they will already be called within the context of 'app' object */
-	app.wrapObject(app);
-
 	/* Everything is loaded, it's time to start! */
 	$(document).ready(function() {
+
+		/* Wrapping application's functions, so they will already be called within the context of 'app' object */
+		app.wrapObject(app);
 
 		var $body = $('body');
 
@@ -25,18 +25,6 @@
 		/* New 'ready' event */
 		$(app).triggerHandler('ready');
 	});
-
-	/* Shouldn't be there. Deprecated. */
-	if (app.config.legacy) {
-		$(document).on('mouseup.auto-close', function(e) {
-			$('[data-close="auto"]:visible').each(function(idx, el) {
-				var $el = $(el);
-				if ($el.has(e.target).length === 0 && !$el.is(e.target)) {
-					$el.hide();
-				}
-			});
-		});
-	}
 
 	/* Adding Object.keys support for older browsers. */
 	if (!Object.keys) {

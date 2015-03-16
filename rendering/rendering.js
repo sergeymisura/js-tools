@@ -20,6 +20,7 @@
 
 		/* Date formatting */
 		$date: function(date) {
+			if (!date) return '';
 			if (typeof date != 'object') {
 				if (/^[0-9]{4}-[0-9][0-9]-[0-9][0-9]/.test(date)) {
 					var t = date.split(/[- :]/);

@@ -15,4 +15,5 @@ return [
 	'rendering/jquery-tmpl-wrapper.js',
 	'rendering/mustache-wrapper.js',
 	'rendering/underscore-wrapper.js',
+	'rendering/handlebars-wrapper.js',
 ];
