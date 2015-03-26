@@ -1,7 +1,6 @@
 (function($, app) {
 
-	/* Transformation to process and prepare templates */
-	app.transformation('[data-template]', function($element) {
+	var templateTransformation = function($element) {
 
 		// We don't need to process it if it is detached from the body.
 		if ($element.parents('body').length == 0) {
@@ -38,7 +37,10 @@
 				placeholder: $placeholder
 			};
 		}
-	});
+	};
+
+	/* Transformation to process and prepare templates */
+	app.transformation('[data-template]', templateTransformation);
 
 	/* This will allow to use templates in src attributes without triggering 404 error:
 	 * <img data-src="${ user_avatar }" /> */
