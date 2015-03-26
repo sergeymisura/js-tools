@@ -69,7 +69,7 @@ var app = {};
 						if (typeof e._stored == 'undefined') {
 							e._stored = true;
 							app.lastException = e;
-							app.trigger('error', e);
+							$(app).trigger('error', e);
 						}
 						throw e;
 					}
