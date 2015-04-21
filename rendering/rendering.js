@@ -41,7 +41,7 @@
 			return template.fn(data, $.extend(filters, _defaultFilters))
 				.data('data', data)
 				.data('filters', filters)
-				.data('template', template)
+				.data('_renderingTemplate', template)
 				.addClass('rendered')
 				.removeAttr('data-template');
 		};
@@ -88,7 +88,7 @@
 				if (typeof data == 'undefined') {
 					data = $part.data('data');
 				}
-				var template = $part.data('template');
+				var template = $part.data('_renderingTemplate');
 				var filters = $part.data('filters');
 				var $new = _renderOne(template, data, filters);
 				template.placeholder.splice(template.placeholder.index($part.get(0)), 1, $new.get(0));
