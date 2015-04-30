@@ -48,7 +48,7 @@
 
 		/* A shortcut for services.rendering.render() */
 		var rendering = function(name, data, filters) {
-			return rendering.render(name, data,filters);
+			return rendering.render(name, data, filters);
 		};
 
 		$.extend(rendering, {
@@ -80,6 +80,18 @@
 
 					return $result;
 				}
+			},
+
+			partial: function ($element, data, filters) {
+				var html;
+				if ($element.prop('tagName') == 'SCRIPT') {
+					html = $element.html();
+				}
+				else {
+					html = $element.outerHtml();
+				}
+				var fn = app.templateWrapper()(html);
+				return fn(data, $.extend(filters, _defaultFilters));
 			},
 
 			/* Re-renders part of the template for one of the elements */
