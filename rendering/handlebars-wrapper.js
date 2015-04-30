@@ -18,7 +18,14 @@
 			/* Compiling template */
 			var environment = Handlebars.create();
 			var template = environment.compile(templateHtml);
-			var registerHelper = $.proxy(environment.registerHelper, environment);
+			var registerHelper = function(name, helper) {
+				if (name.charAt(0) == '>') {
+					environment.registerPartial(name.substr(1), helper.html());
+				}
+				else {
+					environment.registerHelper(name, helper);
+				}
+			}
 
 			$.each(_additionalHelpers, registerHelper);
 
