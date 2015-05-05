@@ -8,6 +8,13 @@
 		},
 		equals: function(a, b, options) {
 			return a == b ? options.fn(this) : options.inverse(this);
+		},
+		every: function(num, options) {
+			if (typeof num !== "number") {
+				options = num;
+				num = 2;
+			}
+			return ((options.data.index + 1) % num == 0) ? options.fn(this) : options.inverse(this);
 		}
 	};
 
