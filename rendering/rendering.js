@@ -91,7 +91,7 @@
 					html = $element.outerHtml();
 				}
 				var fn = app.templateWrapper()(html);
-				return fn(data, $.extend(filters, _defaultFilters));
+				return app.compile(fn(data, $.extend(filters, _defaultFilters)));
 			},
 
 			/* Re-renders part of the template for one of the elements */
