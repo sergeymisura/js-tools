@@ -31,6 +31,11 @@
 				}
 			}
 			return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
+		},
+
+		$money: function(val) {
+			if (val == null) return '';
+			return '$' + parseFloat(val).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 		}
 	};
 
