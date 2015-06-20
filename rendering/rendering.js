@@ -31,6 +31,11 @@
 				}
 			}
 			return (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
+		},
+
+		$money: function(val) {
+			if (val == null) return '';
+			return '$' + parseFloat(val).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
 		}
 	};
 
@@ -41,14 +46,14 @@
 			return template.fn(data, $.extend(filters, _defaultFilters))
 				.data('data', data)
 				.data('filters', filters)
-				.data('template', template)
+				.data('_renderingTemplate', template)
 				.addClass('rendered')
 				.removeAttr('data-template');
 		};
 
 		/* A shortcut for services.rendering.render() */
 		var rendering = function(name, data, filters) {
-			return rendering.render(name, data,filters);
+			return rendering.render(name, data, filters);
 		};
 
 		$.extend(rendering, {
@@ -82,13 +87,25 @@
 				}
 			},
 
+			partial: function ($element, data, filters) {
+				var html;
+				if ($element.prop('tagName') == 'SCRIPT') {
+					html = $element.html();
+				}
+				else {
+					html = $element.outerHtml();
+				}
+				var fn = app.templateWrapper()(html);
+				return app.compile(fn(data, $.extend(filters, _defaultFilters)));
+			},
+
 			/* Re-renders part of the template for one of the elements */
 			refresh: function($part, data) {
 				$part = this.container($part);
 				if (typeof data == 'undefined') {
 					data = $part.data('data');
 				}
-				var template = $part.data('template');
+				var template = $part.data('_renderingTemplate');
 				var filters = $part.data('filters');
 				var $new = _renderOne(template, data, filters);
 				template.placeholder.splice(template.placeholder.index($part.get(0)), 1, $new.get(0));

@@ -19,13 +19,18 @@
 			}
 		};
 
+		var _absoluteApiUrl = function(path) {
+			var pathSuffix = path === undefined ? "" : ('/' + path); 
+			return app.config.baseUrl + app.config.apiUrl + pathSuffix;
+		};
+
 		var _request = function(uri, data, verb, options) {
 			options = options || {};
 			data = data || {};
 
 			var result = services.deferred();
 			$.ajax(
-				app.config.baseUrl + app.config.apiUrl + '/' + uri,
+				_absoluteApiUrl(uri),
 				$.extend(
 					{
 						type: verb,
@@ -84,6 +89,11 @@
 				else {
 					return this.post(url, data);
 				}
+			},
+
+			/* Get the full url of an API request based on a path */
+			url: function(path) {
+				return _absoluteApiUrl(path);
 			}
 
 		};
