@@ -53,12 +53,12 @@
 
 		/* A shortcut for services.rendering.render() */
 		var rendering = function(name, data, filters) {
-			return rendering.render(name, data, filters);
+			return rendering.render(name, data, filters, false);
 		};
 
 		$.extend(rendering, {
 			/* Renders the template using the provided data */
-			render: function(name, data, filters) {
+			render: function(name, data, filters, append) {
 				filters = filters || {};
 				var template = $element[0].templates[name];
 
@@ -79,12 +79,22 @@
 
 					$result = app.compile($result);
 
-					$(template.placeholder.get(0)).replaceWith($result);
-					template.placeholder.remove();
-					template.placeholder = $result;
+					if (append) {
+						$result.insertAfter(template.placeholder.last());
+						template.placeholder = $.merge(template.placeholder, $result);
+					}
+					else {
+						$(template.placeholder.get(0)).replaceWith($result);
+						template.placeholder.remove();
+						template.placeholder = $result;
+					}
 
 					return $result;
 				}
+			},
+
+			append: function(name, data, filters) {
+				this.render(name, data, filters, true);
 			},
 
 			partial: function ($element, data, filters) {
