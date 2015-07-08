@@ -203,13 +203,13 @@
 				if (typeof optionsMap['empty'] == 'undefined' || val != '') {
 					if (typeof optionsMap['min'] !== 'undefined') {
 						if (val.length < parseInt(optionsMap['min'])) {
-							event.setError('This field should have at least ' + optionsObj['min'] + ' symbols.');
+							event.setError('This field should have at least ' + optionsMap['min'] + ' symbols.');
 							return;
 						}
 					}
 					if (typeof optionsMap['max'] !== 'undefined') {
 						if (val.length > parseInt(optionsMap['max'])) {
-							event.setError('This field should have maximum ' + optionsObj['max'] + ' symbols.');
+							event.setError('This field should have maximum ' + optionsMap['max'] + ' symbols.');
 							return;
 						}
 					}
