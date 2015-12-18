@@ -1,6 +1,8 @@
 (function() {
 	app.service('form', function($element, services) {
 
+		var _lastErrors = [];
+
 		var _validationFunctions = {
 			value: {
 				test: function($source) {
@@ -39,6 +41,11 @@
 		var _displayError = function($source, showMessage, messageText) {
 			var $parent = $source.parents('.control-group, .validation-group, .form-group');
 			$source.addClass('invalid');
+			_lastErrors.push({
+				'id': $source.attr('id'),
+				'name': $source.attr('name'),
+				'message': messageText
+			});
 			if (showMessage) {
 				$parent.addClass('invalid');
 				$parent.find('.errors').html('').append(
@@ -65,7 +72,7 @@
 						var pair = option.split(':');
 						optionsObj[pair[0]] = pair[1];
 					}
-				})
+				});
 
 				if (rule) {
 					var val = $source.val();
@@ -124,6 +131,7 @@
 			return {
 				validate: function() {
 					var result = true;
+					_lastErrors = [];
 					$form.find('[data-required]').each(function(idx, element){
 						result = _validate($(element), true) && result;
 					});
@@ -158,6 +166,10 @@
 						return filtered;
 					}
 					return data;
+				},
+
+				getLastErrors: function() {
+					return _lastErrors;
 				}
 			};
 		};
