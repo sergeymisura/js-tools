@@ -1,0 +1,1 @@
+--standard=PSR2 --extensions=php --ignore=test.php
